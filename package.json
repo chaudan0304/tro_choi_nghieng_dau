@@ -1,0 +1,53 @@
+{
+  "name": "quiz-game-motion",
+  "version": "1.0.0",
+  "description": "Game trắc nghiệm điều khiển bằng cử chỉ nghiêng đầu",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mediapipe/camera_utils": "^0.3.1675466862",
+    "@mediapipe/drawing_utils": "^0.3.1675466124",
+    "@mediapipe/face_mesh": "^0.4.1633559619",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-latest/xlsx-latest.tgz"
+  },
+  "devDependencies": {
+    "electron": "^42.0.1",
+    "electron-builder": "^26.8.1"
+  },
+  "build": {
+    "appId": "com.quizgame.motion",
+    "productName": "Trắc Nghiệm Chuyển Động",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "script.js",
+      "style.css",
+      "questions.json",
+      "node_modules/@mediapipe/**/*",
+      "node_modules/xlsx/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "forceCodeSigning": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "installerSidebar": null
+    },
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/@mediapipe/**/*"
+    ]
+  }
+}

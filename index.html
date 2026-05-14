@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Game - Nhận diện nghiêng đầu</title>
+    <meta name="description" content="Game trắc nghiệm điều khiển bằng cử chỉ nghiêng đầu, sử dụng AI nhận diện khuôn mặt">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="./node_modules/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="./node_modules/@mediapipe/face_mesh/face_mesh.js"></script>
+    <script src="./node_modules/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="./node_modules/xlsx/dist/xlsx.full.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- CONFETTI CANVAS -->
+    <canvas id="confettiCanvas" style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:9999;"></canvas>
+
+    <!-- MAIN MENU -->
+    <div id="menuView" class="menu-view">
+        <div class="menu-title">🎮 Trắc Nghiệm FaceMesh</div>
+        <div class="team-inputs">
+            <div class="team-input-group">
+                <label>Số lượng đội tham gia</label>
+                <select id="numTeamsSelect" style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid var(--border); background: var(--bg); color: var(--text); margin-bottom: 10px; font-weight: 600;">
+                    <option value="1">1 Đội (Luyện tập)</option>
+                    <option value="2" selected>2 Đội (Thi đấu)</option>
+                    <option value="3">3 Đội</option>
+                    <option value="4">4 Đội</option>
+                </select>
+            </div>
+            <div class="team-input-group" id="t1Group">
+                <input type="text" id="team1Input" placeholder="Tên đội 1..." value="Nhóm 1">
+            </div>
+            <div class="team-input-group" id="t2Group">
+                <input type="text" id="team2Input" placeholder="Tên đội 2..." value="Nhóm 2">
+            </div>
+            <div class="team-input-group hidden" id="t3Group">
+                <input type="text" id="team3Input" placeholder="Tên đội 3..." value="Nhóm 3">
+            </div>
+            <div class="team-input-group hidden" id="t4Group">
+                <input type="text" id="team4Input" placeholder="Tên đội 4..." value="Nhóm 4">
+            </div>
+            
+            <div class="team-input-group" style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 16px;">
+                <label>🎵 Thay đổi Nhạc nền</label>
+                <input type="file" id="musicInput" accept="audio/*" style="display:none;">
+                <button class="btn-sm btn-ghost" id="chooseMusicBtn" style="width:100%;">Tải file nhạc lên...</button>
+                <small id="musicStatus" style="display:block; text-align:center; margin-top:8px; color:var(--text-muted); font-size:0.8rem;">Đang dùng nhạc Game Mặc định</small>
+            </div>
+        </div>
+        <div class="menu-buttons">
+            <button class="btn" id="menuStartBtn">🚀 Vào Trò Chơi</button>
+            <button class="btn-ghost" id="menuManageBtn">📝 Quản lý câu hỏi</button>
+            <button class="btn-ghost" id="menuQuitBtn" style="color: var(--danger); border-color: var(--danger);">❌ Thoát</button>
+        </div>
+    </div>
+
+    <!-- GAME VIEW -->
+    <div id="gameView" class="game-view hidden">
+        <h1>🧠 Trắc Nghiệm Cảm Biến Chuyển Động</h1>
+
+    <div class="top-bar">
+        <div class="scoreboard" id="scoreboard">
+            <!-- Tự động sinh ra dựa trên số lượng đội -->
+        </div>
+        <div class="top-buttons">
+            <button class="music-btn" id="musicBtn" title="Bật/Tắt nhạc nền">🔊</button>
+            <button class="manage-btn" id="manageBtn">📝 Quản lý câu hỏi</button>
+        </div>
+    </div>
+
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-info">
+            <span id="progressLabel">Câu 0/0</span>
+            <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="camera-section">
+            <div id="loadingCam" class="loading-text">⏳ Đang tải Camera & AI...</div>
+            <div id="errorCam" class="error-msg">⚠️ Không thể truy cập Camera.<br>Vui lòng cấp quyền và tải lại trang.</div>
+            <video id="video" playsinline autoplay muted style="display:none;"></video>
+            <canvas id="output_canvas" width="640" height="480"></canvas>
+            <div id="tiltIndicator" class="tilt-indicator">Góc: 0°</div>
+            <div class="hold-ring" id="holdRing">
+                <svg viewBox="0 0 54 54"><circle class="bg" cx="27" cy="27" r="25"/><circle class="fg" id="holdCircle" cx="27" cy="27" r="25"/></svg>
+                <span class="hold-label" id="holdLabel">⏳</span>
+            </div>
+        </div>
+
+        <div class="game-section">
+            <div class="player-info" id="playerInfo">Nhấn Bắt đầu để chơi!</div>
+            <div class="timer-bar-container" id="timerBarContainer">
+                <div class="timer-bar-fill" id="timerBarFill"></div>
+            </div>
+            <div class="timer-text" id="timerText">⏱️ 15s</div>
+
+            <div class="question-card" id="questionCard">
+                <div class="question-text" id="questionText">Sẵn sàng chưa?</div>
+                <div class="answers">
+                    <div class="answer-btn" id="ansA">
+                        <span class="tilt-guide">👈 Nghiêng TRÁI</span>
+                        <span id="textA">Đáp án A</span>
+                    </div>
+                    <div class="answer-btn" id="ansB">
+                        <span class="tilt-guide">Nghiêng PHẢI 👉</span>
+                        <span id="textB">Đáp án B</span>
+                    </div>
+                    <div class="answer-btn" id="ansC">
+                        <span class="tilt-guide">👆 Ngẩng LÊN</span>
+                        <span id="textC">Đáp án C</span>
+                    </div>
+                    <div class="answer-btn" id="ansD">
+                        <span class="tilt-guide">👇 Cúi XUỐNG</span>
+                        <span id="textD">Đáp án D</span>
+                    </div>
+                </div>
+                <div id="feedback"></div>
+            </div>
+
+            <div class="controls">
+                <button class="btn" id="startBtn" disabled>Bắt đầu ngay</button>
+                <button class="btn btn-ghost" id="homeBtn" style="display:none; margin-left: 10px;">🏠 Trang Chủ</button>
+            </div>
+        </div>
+    </div>
+    </div> <!-- END gameView -->
+
+    <!-- MODAL QUẢN LÝ CÂU HỎI -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>📝 Quản lý Câu hỏi</h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="qListView">
+                    <div class="q-list" id="qList"></div>
+                </div>
+                <div class="q-form" id="qForm">
+                    <h3 id="qFormTitle" style="font-size:1rem;margin-bottom:4px;">Thêm câu hỏi mới</h3>
+                    <label for="qInput">Câu hỏi</label>
+                    <input type="text" id="qInput" placeholder="Nhập câu hỏi...">
+                    <label for="qAInput">Đáp án A (Nghiêng Trái)</label>
+                    <input type="text" id="qAInput" placeholder="Nhập đáp án A...">
+                    <label for="qBInput">Đáp án B (Nghiêng Phải)</label>
+                    <input type="text" id="qBInput" placeholder="Nhập đáp án B...">
+                    <label for="qCInput">Đáp án C (Ngẩng Lên)</label>
+                    <input type="text" id="qCInput" placeholder="Nhập đáp án C...">
+                    <label for="qDInput">Đáp án D (Cúi Xuống)</label>
+                    <input type="text" id="qDInput" placeholder="Nhập đáp án D...">
+                    <label for="qCorrectInput">Đáp án đúng</label>
+                    <select id="qCorrectInput">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                    <div class="form-actions">
+                        <button class="btn-sm btn-primary" id="qFormSave">💾 Lưu</button>
+                        <button class="btn-sm btn-ghost" id="qFormCancel">Hủy</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-sm btn-primary" id="addQBtn">➕ Thêm câu hỏi</button>
+                <button class="btn-sm btn-success" id="exportExcelBtn">📥 Xuất Excel</button>
+                <label class="btn-sm btn-ghost" style="cursor:pointer;">📤 Nhập Excel<input type="file" id="importExcelFile" accept=".xlsx,.xls" style="display:none;"></label>
+                <button class="btn-sm btn-danger" id="resetQBtn">🔄 Khôi phục mặc định</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
