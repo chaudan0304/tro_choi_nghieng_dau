@@ -8,36 +8,30 @@
             { q: "Đâu là Framework của JavaScript?", a: "Laravel", b: "Django", c: "Spring", d: "React", correct: "D" },
         ];
 
-        // --- QUẢN LÝ DỮ LIỆU CÂU HỎI (Node.js fs) ---
-        const fs = require('fs');
-        const path = require('path');
-        const userDataPath = process.env.APPDATA || process.env.USERPROFILE || __dirname;
-        const APP_DIR = path.join(userDataPath, 'QuizGameMotion');
-        if (!fs.existsSync(APP_DIR)) {
-            try { fs.mkdirSync(APP_DIR, { recursive: true }); } catch (e) {}
-        }
-        const dataFile = path.join(APP_DIR, 'questions.json');
+        // --- QUẢN LÝ DỮ LIỆU CÂU HỎI (localStorage) ---
+        const STORAGE_KEY = 'quizgame_questions';
 
         function loadQuestions() {
             try {
-                if (fs.existsSync(dataFile)) {
-                    const saved = fs.readFileSync(dataFile, 'utf-8');
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
                     const parsed = JSON.parse(saved);
                     if (Array.isArray(parsed) && parsed.length > 0) return parsed;
                 }
             } catch (e) {
-                console.error("Lỗi đọc file questions.json:", e);
+                console.error("Lỗi đọc dữ liệu:", e);
             }
             return JSON.parse(JSON.stringify(DEFAULT_QUESTIONS));
         }
 
         function saveQuestions(qs) {
             try {
-                fs.writeFileSync(dataFile, JSON.stringify(qs, null, 4), 'utf-8');
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(qs));
             } catch (e) {
-                console.error("Lỗi ghi file questions.json:", e);
+                console.error("Lỗi lưu dữ liệu:", e);
             }
         }
+
 
         let questions = loadQuestions();
 
@@ -118,6 +112,7 @@
             feedback: document.getElementById('feedback'),
             startBtn: document.getElementById('startBtn'),
             homeBtn: document.getElementById('homeBtn'),
+            endGameBtn: document.getElementById('endGameBtn'),
             progressContainer: document.getElementById('progressContainer'),
             progressLabel: document.getElementById('progressLabel'),
             progressPercent: document.getElementById('progressPercent'),
@@ -509,6 +504,7 @@
             }
             ui.startBtn.style.display = 'none';
             ui.homeBtn.style.display = 'none';
+            ui.endGameBtn.style.display = 'inline-block';
             tiltIndicator.style.display = 'block';
             ui.progressContainer.style.display = 'block';
             ui.ansA.style.display = '';
@@ -556,9 +552,11 @@
             ui.startBtn.textContent = "🔄 Chơi Lại";
             ui.startBtn.style.display = 'inline-block';
             ui.homeBtn.style.display = 'inline-block';
+            ui.endGameBtn.style.display = 'none';
         }
 
         ui.startBtn.addEventListener('click', startGame);
+        ui.endGameBtn.addEventListener('click', endGame);
 
         ui.homeBtn.addEventListener('click', () => {
             state.isPlaying = false;
@@ -570,6 +568,7 @@
             ui.startBtn.textContent = "🎮 Bắt đầu ngay";
             ui.startBtn.disabled = false;
             ui.homeBtn.style.display = 'none';
+            ui.endGameBtn.style.display = 'none';
             ui.playerInfo.innerHTML = "Nhấn Bắt đầu để chơi!";
             ui.questionText.textContent = "Sẵn sàng chưa?";
             ui.ansA.style.display = '';
@@ -603,22 +602,21 @@
         });
 
         ui.chooseMusicBtn.addEventListener('click', () => ui.musicInput.click());
-        const musicFile = path.join(APP_DIR, 'custom_music.mp3');
 
         ui.musicInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
-                fs.copyFileSync(file.path, musicFile);
+                const url = URL.createObjectURL(file);
                 ui.musicStatus.textContent = "Đang dùng: " + file.name;
                 usingCustomMusic = true;
-                customAudio.src = musicFile;
+                customAudio.src = url;
+                localStorage.setItem('quizgame_music_name', file.name);
             }
         });
 
-        if (fs.existsSync(musicFile)) {
-            usingCustomMusic = true;
-            customAudio.src = musicFile;
-            ui.musicStatus.textContent = "Đã tải nhạc tùy chỉnh";
+        const savedMusicName = localStorage.getItem('quizgame_music_name');
+        if (savedMusicName) {
+            ui.musicStatus.textContent = "Nhạc đã chọn: " + savedMusicName + " (chọn lại khi mở app)";
         }
 
         ui.menuStartBtn.addEventListener('click', () => {
@@ -691,7 +689,8 @@
 
             if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
                 const landmarks = results.multiFaceLandmarks[0];
-                drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION, { color: '#C0C0C070', lineWidth: 1 });
+                // Ẩn đường viền lưới khuôn mặt theo yêu cầu
+                // drawConnectors(canvasCtx, landmarks, FACEMESH_TESSELATION, { color: '#C0C0C070', lineWidth: 1 });
 
                 const leftEye = landmarks[33];
                 const rightEye = landmarks[263];
@@ -732,15 +731,8 @@
         let faceMesh, camera;
         function initFaceMesh() {
             try {
-                // Thử đường dẫn bình thường trước, nếu không có thì thử app.asar.unpacked
-                let faceMeshDir = path.join(__dirname, 'node_modules', '@mediapipe', 'face_mesh');
-                if (!fs.existsSync(faceMeshDir)) {
-                    faceMeshDir = faceMeshDir.replace('app.asar', 'app.asar.unpacked');
-                }
                 faceMesh = new FaceMesh({
-                    locateFile: (file) => {
-                        return path.join(faceMeshDir, file).replace(/\\/g, '/');
-                    }
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
                 });
                 faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
                 faceMesh.onResults(onResults);
@@ -771,6 +763,13 @@
             loadingText.style.display = 'none';
             errorCam.style.display = 'block';
         }
+
+        document.getElementById('retryCamera').addEventListener('click', () => {
+            errorCam.style.display = 'none';
+            loadingText.style.display = 'block';
+            state.cameraReady = false;
+            initFaceMesh();
+        });
 
         initFaceMesh();
 

@@ -23,24 +23,25 @@
             font-family: 'Inter', sans-serif;
             background: var(--bg);
             color: var(--text);
-            min-height: 100vh;
-            padding: 20px;
+            height: 100vh;
+            padding: clamp(8px, 1.5vh, 20px);
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow: hidden;
             background-image:
                 radial-gradient(ellipse at 20% 50%, rgba(108,92,231,0.08) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 50%, rgba(85,239,196,0.06) 0%, transparent 50%);
         }
 
         h1 {
-            font-size: 1.8rem;
+            font-size: clamp(1.1rem, 2.5vh, 1.8rem);
             font-weight: 800;
             background: linear-gradient(135deg, var(--primary-light), var(--group2));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 16px;
+            margin-bottom: clamp(6px, 1vh, 16px);
             text-align: center;
         }
 
@@ -50,9 +51,9 @@
             align-items: center;
             justify-content: space-between;
             width: 100%;
-            max-width: 1050px;
-            margin-bottom: 16px;
-            gap: 12px;
+            max-width: 98vw;
+            margin-bottom: clamp(4px, 1vh, 16px);
+            gap: clamp(6px, 1vw, 12px);
             flex-wrap: wrap;
         }
 
@@ -64,11 +65,11 @@
         }
 
         .score-box {
-            padding: 10px 28px;
+            padding: clamp(6px, 1vh, 10px) clamp(14px, 2vw, 28px);
             border-radius: var(--radius);
             background: var(--bg-card);
             border: 2px solid var(--border);
-            font-size: 1.15rem;
+            font-size: clamp(0.8rem, 1.5vh, 1.15rem);
             font-weight: 700;
             transition: all 0.3s ease;
             position: relative;
@@ -130,8 +131,8 @@
         /* --- PROGRESS BAR --- */
         .progress-container {
             width: 100%;
-            max-width: 1050px;
-            margin-bottom: 16px;
+            max-width: 98vw;
+            margin-bottom: clamp(4px, 1vh, 16px);
             display: none;
         }
         .progress-info {
@@ -159,9 +160,11 @@
         /* --- MAIN LAYOUT --- */
         .main-container {
             display: flex;
-            gap: 24px;
+            gap: clamp(10px, 1.5vw, 24px);
             width: 100%;
-            max-width: 1050px;
+            max-width: 98vw;
+            flex: 1;
+            min-height: 0;
         }
 
         .camera-section {
@@ -171,7 +174,7 @@
             overflow: hidden;
             position: relative;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            min-height: 380px;
+            min-height: 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -232,15 +235,17 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: clamp(4px, 0.8vh, 12px);
+            min-height: 0;
+            overflow-y: auto;
         }
 
         .player-info {
             background: var(--bg-card);
-            padding: 14px;
+            padding: clamp(8px, 1.2vh, 14px);
             border-radius: var(--radius);
             text-align: center;
-            font-size: 1.1rem;
+            font-size: clamp(0.85rem, 1.5vh, 1.1rem);
             font-weight: 600;
             border: 1px solid var(--border);
         }
@@ -275,10 +280,11 @@
 
         .question-card {
             background: var(--bg-card);
-            padding: 28px;
+            padding: clamp(16px, 3vh, 32px);
             border-radius: var(--radius);
             border: 1px solid var(--border);
-            flex-grow: 1;
+            flex: 1 1 0;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -286,9 +292,9 @@
         }
 
         .question-text {
-            font-size: 1.3rem;
+            font-size: clamp(1.1rem, 2.8vh, 1.5rem);
             font-weight: 700;
-            margin-bottom: 28px;
+            margin-bottom: clamp(12px, 2.5vh, 28px);
             text-align: center;
             line-height: 1.5;
         }
@@ -296,14 +302,14 @@
         .answers { 
             display: grid; 
             grid-template-columns: 1fr 1fr; 
-            gap: 16px; 
+            gap: clamp(8px, 1.5vh, 16px); 
         }
 
         .answer-btn {
             flex: 1;
-            padding: 18px;
+            padding: clamp(12px, 2vh, 20px);
             text-align: center;
-            font-size: 1.1rem;
+            font-size: clamp(1rem, 2vh, 1.15rem);
             font-weight: 600;
             border-radius: var(--radius);
             border: 2px solid var(--border);
@@ -314,20 +320,20 @@
         }
         .answer-btn .tilt-guide {
             display: block;
-            font-size: 0.82rem;
+            font-size: clamp(0.75rem, 1.2vh, 0.85rem);
             color: var(--text-muted);
-            margin-bottom: 6px;
+            margin-bottom: clamp(3px, 0.6vh, 6px);
         }
         .answer-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
         .answer-btn.selected .tilt-guide { color: rgba(255,255,255,0.8); }
         .answer-btn.correct { background: var(--group2-dark); border-color: var(--group2-dark); color: white; }
         .answer-btn.wrong { background: var(--group1-dark); border-color: var(--group1-dark); color: white; }
 
-        .controls { text-align: center; margin-top: 12px; }
+        .controls { text-align: center; margin-top: auto; padding-top: clamp(4px, 0.8vh, 12px); flex-shrink: 0; }
 
         .btn {
-            padding: 14px 36px;
-            font-size: 1.1rem;
+            padding: clamp(8px, 1.2vh, 14px) clamp(20px, 3vw, 36px);
+            font-size: clamp(0.9rem, 1.5vh, 1.1rem);
             font-weight: 700;
             border: none;
             border-radius: var(--radius);
@@ -340,6 +346,8 @@
         .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(108,92,231,0.4); }
         .btn:active { transform: scale(0.97); }
         .btn:disabled { background: #3a3a55; color: #666; cursor: not-allowed; box-shadow: none; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #ff4757); box-shadow: 0 4px 16px rgba(255,107,129,0.3); }
+        .btn-danger:hover { box-shadow: 0 6px 24px rgba(255,107,129,0.4); }
 
         #feedback {
             text-align: center;
@@ -517,22 +525,24 @@
         }
 
         /* --- RESPONSIVE --- */
-        @media (max-width: 768px) {
-            body { padding: 12px; }
-            h1 { font-size: 1.3rem; }
+        @media (max-height: 700px) {
+            .question-card { padding: 8px 12px; }
+            .answers { gap: 6px; }
+            .player-info { padding: 6px; }
+        }
+
+        @media (max-width: 900px) {
             .main-container { flex-direction: column; }
-            .camera-section { min-height: 280px; }
-            .answers { flex-direction: column; gap: 10px; }
-            .score-box { padding: 8px 18px; font-size: 1rem; }
-            .question-text { font-size: 1.1rem; }
+            .camera-section { max-height: 35vh; }
+            .answers { grid-template-columns: 1fr 1fr; gap: 8px; }
             .modal { max-height: 90vh; }
         }
 
-        @media (max-width: 480px) {
-            h1 { font-size: 1.1rem; }
-            .question-card { padding: 18px; }
+        @media (max-width: 600px) {
             .top-bar { flex-direction: column; align-items: stretch; }
+            .answers { grid-template-columns: 1fr; gap: 6px; }
             .manage-btn { text-align: center; }
+            .score-box { padding: 6px 12px; font-size: 0.85rem; }
         }
 
         /* --- MAIN MENU --- */
@@ -545,15 +555,15 @@
             max-width: 500px;
             margin: auto;
             background: var(--bg-card);
-            padding: 40px;
+            padding: clamp(20px, 4vh, 40px);
             border-radius: var(--radius);
             border: 1px solid var(--border);
             box-shadow: 0 16px 64px rgba(0,0,0,0.5);
-            margin-top: 40px;
+            margin-top: clamp(10px, 3vh, 40px);
         }
         .menu-title {
-            font-size: 1.8rem;
-            margin-bottom: 30px;
+            font-size: clamp(1.2rem, 3vh, 1.8rem);
+            margin-bottom: clamp(12px, 2vh, 30px);
             text-align: center;
             background: linear-gradient(135deg, var(--primary-light), var(--group2));
             -webkit-background-clip: text;
@@ -599,5 +609,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
         }
         .hidden { display: none !important; }

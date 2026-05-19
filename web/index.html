@@ -7,10 +7,10 @@
     <title>Quiz Game - Nhận diện nghiêng đầu</title>
     <meta name="description" content="Game trắc nghiệm điều khiển bằng cử chỉ nghiêng đầu, sử dụng AI nhận diện khuôn mặt">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="./node_modules/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="./node_modules/@mediapipe/face_mesh/face_mesh.js"></script>
-    <script src="./node_modules/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="./node_modules/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -86,7 +86,7 @@
     <div class="main-container">
         <div class="camera-section">
             <div id="loadingCam" class="loading-text">⏳ Đang tải Camera & AI...</div>
-            <div id="errorCam" class="error-msg">⚠️ Không thể truy cập Camera.<br>Vui lòng cấp quyền và tải lại trang.</div>
+            <div id="errorCam" class="error-msg">⚠️ Không thể truy cập Camera.<br>Vui lòng cấp quyền camera.<br><button id="retryCamera" class="btn" style="margin-top:12px; padding:10px 24px; font-size:0.95rem;">🔄 Thử lại Camera</button></div>
             <video id="video" playsinline autoplay muted style="display:none;"></video>
             <canvas id="output_canvas" width="640" height="480"></canvas>
             <div id="tiltIndicator" class="tilt-indicator">Góc: 0°</div>
@@ -128,6 +128,7 @@
 
             <div class="controls">
                 <button class="btn" id="startBtn" disabled>Bắt đầu ngay</button>
+                <button class="btn btn-danger" id="endGameBtn" style="display:none; margin-left: 10px;">⏹️ Kết thúc</button>
                 <button class="btn btn-ghost" id="homeBtn" style="display:none; margin-left: 10px;">🏠 Trang Chủ</button>
             </div>
         </div>
