@@ -4,8 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Game - Nhận diện nghiêng đầu</title>
-    <meta name="description" content="Game trắc nghiệm điều khiển bằng cử chỉ nghiêng đầu, sử dụng AI nhận diện khuôn mặt">
+    <title>Quiz Game - Trắc Nghiệm Nghiêng Đầu | FaceMesh AI</title>
+    <meta name="description" content="Game trắc nghiệm trực tuyến điều khiển bằng cử chỉ nghiêng đầu, sử dụng AI FaceMesh nhận diện khuôn mặt. Hỗ trợ 1-4 đội, quản lý câu hỏi, nhập/xuất Excel.">
+    <meta name="keywords" content="quiz game, facemesh, AI, trắc nghiệm, nghiêng đầu, nhận diện khuôn mặt, game giáo dục">
+    <meta name="author" content="chaudan0304">
+    <meta name="theme-color" content="#0f0f1a">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Quiz Game - Trắc Nghiệm Nghiêng Đầu">
+    <meta property="og:description" content="Game trắc nghiệm trực tuyến điều khiển bằng AI nhận diện khuôn mặt. Nghiêng đầu để chọn đáp án!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://chaudan0304.github.io/tro_choi_nghieng_dau/">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>" type="image/svg+xml">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
@@ -55,7 +68,9 @@
         <div class="menu-buttons">
             <button class="btn" id="menuStartBtn">🚀 Vào Trò Chơi</button>
             <button class="btn-ghost" id="menuManageBtn">📝 Quản lý câu hỏi</button>
-            <button class="btn-ghost" id="menuQuitBtn" style="color: var(--danger); border-color: var(--danger);">❌ Thoát</button>
+        </div>
+        <div class="menu-footer">
+            <small>Sử dụng camera + AI FaceMesh để nhận diện cử chỉ</small>
         </div>
     </div>
 

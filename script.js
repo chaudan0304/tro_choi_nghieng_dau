@@ -97,7 +97,6 @@
             musicStatus: document.getElementById('musicStatus'),
             menuStartBtn: document.getElementById('menuStartBtn'),
             menuManageBtn: document.getElementById('menuManageBtn'),
-            menuQuitBtn: document.getElementById('menuQuitBtn'),
             playerInfo: document.getElementById('playerInfo'),
             questionText: document.getElementById('questionText'),
             questionCard: document.getElementById('questionCard'),
@@ -641,9 +640,6 @@
             openModal();
         });
 
-        ui.menuQuitBtn.addEventListener('click', () => {
-            window.close();
-        });
 
         // --- HOLD-TO-CONFIRM LOGIC ---
         function resetHold() {
