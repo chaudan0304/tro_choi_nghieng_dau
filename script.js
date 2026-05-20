@@ -931,7 +931,7 @@
                     // Bỏ dòng tiêu đề nếu có
                     let startRow = 0;
                     if (rows.length > 0) {
-                        const firstCell = String(rows[0][0] || '').toLowerCase();
+                        const firstCell = rows[0][0] !== undefined && rows[0][0] !== null ? String(rows[0][0]).toLowerCase() : '';
                         if (firstCell.includes('câu') || firstCell.includes('question') || firstCell === 'q') {
                             startRow = 1;
                         }
@@ -940,15 +940,22 @@
                     const imported = [];
                     for (let i = startRow; i < rows.length; i++) {
                         const row = rows[i];
-                        if (!row || !row[0]) continue; // Bỏ dòng trống
-                        const q = String(row[0] || '').trim();
-                        const a = String(row[1] || '').trim();
-                        const b = String(row[2] || '').trim();
-                        const c = String(row[3] || '').trim();
-                        const d = String(row[4] || '').trim();
-                        let correct = String(row[5] || 'A').trim().toUpperCase();
+                        if (!row || row[0] === undefined || row[0] === null || String(row[0]).trim() === '') continue; // Bỏ dòng trống
+                        
+                        const q = row[0] !== undefined && row[0] !== null ? String(row[0]).trim() : '';
+                        const a = row[1] !== undefined && row[1] !== null ? String(row[1]).trim() : '';
+                        const b = row[2] !== undefined && row[2] !== null ? String(row[2]).trim() : '';
+                        const c = row[3] !== undefined && row[3] !== null ? String(row[3]).trim() : '';
+                        const d = row[4] !== undefined && row[4] !== null ? String(row[4]).trim() : '';
+                        
+                        let correct = row[5] !== undefined && row[5] !== null ? String(row[5]).trim().toUpperCase() : 'A';
                         if (!['A', 'B', 'C', 'D'].includes(correct)) correct = 'A';
-                        if (q && a && b && c && d) {
+                        
+                        if (q !== '' && a !== '' && b !== '') {
+                            // Tự động sửa lại đáp án đúng nếu câu hỏi chỉ có A và B nhưng đáp án đúng chỉ định C hoặc D
+                            if (correct === 'C' && c === '') correct = 'A';
+                            if (correct === 'D' && d === '') correct = 'A';
+                            
                             imported.push({ q, a, b, c, d, correct });
                         }
                     }
